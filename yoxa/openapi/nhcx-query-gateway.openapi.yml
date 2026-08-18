@@ -6,6 +6,32 @@ info:
 servers:
   - url: https://claims-backend-26qu.onrender.com
 paths:
+  /api/patients/{patient_id}/nhcx-queries:
+    get:
+      operationId: listPayerQueries
+      summary: "List all NHCX queries for a patient"
+      description: "Retrieves all inbound NHCX payer queries for the specified patient."
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Patient identifier, e.g. PAT-10482.
+      responses:
+        '200':
+          description: List of queries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patient_id:
+                    type: string
+                  queries:
+                    type: array
+                    items:
+                      type: object
   /api/patients/{patient_id}/nhcx-queries/{query_id}/respond:
     post:
       operationId: respondToPayerQuery
