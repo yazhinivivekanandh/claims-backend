@@ -4,7 +4,7 @@ info:
   title: Policy Eligibility Validator
   version: 0.1.0
 servers:
-  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+  - url: https://claims-backend-26qu.onrender.com
 paths:
   /api/policies/validate:
     post:

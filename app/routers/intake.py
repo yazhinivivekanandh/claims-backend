@@ -134,7 +134,16 @@ def advance_state(patient_id: str, body: StateAdvanceBody):
     current = _state_for(patient_id)
     current_state = current["current_state"] if current else "INTAKE_RECEIVED"
     if expected_from and current_state != expected_from:
-        raise HTTPException(status_code=409, detail=f"Cannot advance from '{current_state}' with event '{body.event}'")
+        return {
+            "patient_id": patient_id,
+            "transition_id": None,
+            "event": body.event,
+            "current_state": current_state,
+            "next_state": None,
+            "blocking": False,
+            "blocking_reasons": [],
+            "note": f"Already at '{current_state}', cannot transition with event '{body.event}'",
+        }
     reasons = blocking_conditions(patient_id)
     blocking = len(reasons) > 0
     if blocking and body.event in ("discharge_trigger", "claim_readiness", "fhir_assembly"):

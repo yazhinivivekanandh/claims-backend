@@ -4,7 +4,7 @@ info:
   title: Clinical Justification Extractor
   version: 0.1.0
 servers:
-  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+  - url: https://claims-backend-26qu.onrender.com
 paths:
   /api/patients/{patient_id}/clinical-justification:
     get:
