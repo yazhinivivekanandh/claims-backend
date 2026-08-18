@@ -4,7 +4,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
-from ..db import one, rows, write, utc_now, json_dumps
+from ..db import one, rows, write, get_conn, utc_now, json_dumps
 from ..dependencies import require_token
 
 router = APIRouter(dependencies=[Depends(require_token)])
@@ -103,7 +103,7 @@ def _next_seq(table: str, column: str) -> int:
 
 
 class StateAdvanceBody(BaseModel):
-    event: str
+    event: Optional[str] = None
     metadata: Optional[dict] = None
 
 
@@ -169,7 +169,6 @@ def advance_state(patient_id: str, body: StateAdvanceBody):
     get_patient(patient_id)
     current = _state_for(patient_id)
     current_state = current["current_state"] if current else "INTAKE_RECEIVED"
-    event_upper = body.event.upper().replace(" ", "_")
 
     STATE_FLOW = [
         ("INTAKE_RECEIVED", "INTAKE_VALIDATED", "DAILY_STAY_OPERATIONS"),
@@ -209,7 +208,7 @@ def advance_state(patient_id: str, body: StateAdvanceBody):
 
     reasons = blocking_conditions(patient_id)
     blocking = len(reasons) > 0
-    if blocking and body.event.upper() in ("DISCHARGE_TRIGGER", "CLAIM_READINESS", "FHIR_ASSEMBLY"):
+    if blocking and (body.event or "").upper() in ("DISCHARGE_TRIGGER", "CLAIM_READINESS", "FHIR_ASSEMBLY"):
         return {
             "patient_id": patient_id,
             "transition_id": None,
@@ -219,12 +218,22 @@ def advance_state(patient_id: str, body: StateAdvanceBody):
             "blocking": True,
             "blocking_reasons": reasons,
         }
-    seq = _next_seq("state_records", "patient_id")
-    transition_id = f"ST-{patient_id}-{seq:03d}"
-    write(
-        "INSERT OR REPLACE INTO state_records (patient_id, current_state, next_state, blocking, transition_event, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-        (patient_id, to_state, next_state, int(blocking), body.event, utc_now()),
-    )
+    conn = get_conn()
+    conn.execute("BEGIN IMMEDIATE")
+    try:
+        seq = _next_seq("state_records", "patient_id")
+        transition_id = f"ST-{patient_id}-{seq:03d}"
+        conn.execute(
+            "INSERT INTO state_records (patient_id, current_state, next_state, blocking, transition_event, created_at) "
+            "VALUES (?, ?, ?, ?, ?, ?) "
+            "ON CONFLICT(patient_id) DO UPDATE SET current_state=excluded.current_state, next_state=excluded.next_state, "
+            "blocking=excluded.blocking, transition_event=excluded.transition_event, created_at=excluded.created_at",
+            (patient_id, to_state, next_state, int(blocking), body.event, utc_now()),
+        )
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
     return {
         "patient_id": patient_id,
         "transition_id": transition_id,

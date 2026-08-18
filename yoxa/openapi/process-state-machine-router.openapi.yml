@@ -10,7 +10,7 @@ paths:
     post:
       operationId: advancePatientState
       summary: "Advance the patient's workflow state"
-      description: "Advances the ordered workflow state for a patient. Valid events: INTAKE_RECEIVED, PATIENT_STATE_CREATE, intake_validated, extension_review, discharge_trigger, claim_readiness, fhir_assembly, query_received, query_response_ready, query_escalated. Use INTAKE_RECEIVED or PATIENT_STATE_CREATE for intake steps. Returns 200 with a note when the transition is already complete."
+      description: "Advances the patient's workflow state. The server computes the next state automatically from the patient's current state. The event field is optional and ignored; do not guess or choose an event name. Calling this twice is safe and idempotent. Returns the current_state and next_state values, which should be echoed in downstream context."
       parameters:
         - name: patient_id
           in: path
@@ -19,12 +19,11 @@ paths:
             type: string
           description: Patient identifier, e.g. PAT-10482.
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
                     type: object
-                    required: [event]
                     properties:
                       event:
                         type: string
