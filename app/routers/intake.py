@@ -147,10 +147,15 @@ def advance_state(patient_id: str, body: StateAdvanceBody):
     reasons = blocking_conditions(patient_id)
     blocking = len(reasons) > 0
     if blocking and body.event in ("discharge_trigger", "claim_readiness", "fhir_assembly"):
-        raise HTTPException(
-            status_code=409,
-            detail={"blocking": True, "blocking_reasons": reasons},
-        )
+        return {
+            "patient_id": patient_id,
+            "transition_id": None,
+            "event": body.event,
+            "current_state": current_state,
+            "next_state": None,
+            "blocking": True,
+            "blocking_reasons": reasons,
+        }
     seq = _next_seq("state_records", "patient_id")
     transition_id = f"ST-{patient_id}-{seq:03d}"
     write(
