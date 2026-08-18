@@ -165,8 +165,9 @@ def reset_state(patient_id: str):
 
 
 @router.post("/patients/{patient_id}/state/advance")
-def advance_state(patient_id: str, body: StateAdvanceBody):
+def advance_state(patient_id: str, body: Optional[StateAdvanceBody] = None):
     get_patient(patient_id)
+    event = body.event if body else None
     current = _state_for(patient_id)
     current_state = current["current_state"] if current else "INTAKE_RECEIVED"
 
@@ -181,18 +182,18 @@ def advance_state(patient_id: str, body: StateAdvanceBody):
         ("FACTUAL_RESPONSE_READY", "FACTUAL_RESPONSE_READY", "QUERY_HANDLING"),
     ]
 
-    if body.event in TRANSITIONS:
-        expected_from, to_state, next_state = TRANSITIONS[body.event]
+    if event in TRANSITIONS:
+        expected_from, to_state, next_state = TRANSITIONS[event]
         if expected_from and current_state != expected_from:
             return {
                 "patient_id": patient_id,
                 "transition_id": None,
-                "event": body.event,
+                "event": event,
                 "current_state": current_state,
                 "next_state": None,
                 "blocking": False,
                 "blocking_reasons": [],
-                "note": f"Already at '{current_state}', cannot transition with event '{body.event}'",
+                "note": f"Already at '{current_state}', cannot transition with event '{event}'",
             }
     else:
         matched = False
@@ -208,11 +209,11 @@ def advance_state(patient_id: str, body: StateAdvanceBody):
 
     reasons = blocking_conditions(patient_id)
     blocking = len(reasons) > 0
-    if blocking and (body.event or "").upper() in ("DISCHARGE_TRIGGER", "CLAIM_READINESS", "FHIR_ASSEMBLY"):
+    if blocking and (event or "").upper() in ("DISCHARGE_TRIGGER", "CLAIM_READINESS", "FHIR_ASSEMBLY"):
         return {
             "patient_id": patient_id,
             "transition_id": None,
-            "event": body.event,
+            "event": event,
             "current_state": current_state,
             "next_state": None,
             "blocking": True,
@@ -228,7 +229,7 @@ def advance_state(patient_id: str, body: StateAdvanceBody):
             "VALUES (?, ?, ?, ?, ?, ?) "
             "ON CONFLICT(patient_id) DO UPDATE SET current_state=excluded.current_state, next_state=excluded.next_state, "
             "blocking=excluded.blocking, transition_event=excluded.transition_event, created_at=excluded.created_at",
-            (patient_id, to_state, next_state, int(blocking), body.event, utc_now()),
+            (patient_id, to_state, next_state, int(blocking), event, utc_now()),
         )
         conn.commit()
     except Exception:
@@ -237,7 +238,7 @@ def advance_state(patient_id: str, body: StateAdvanceBody):
     return {
         "patient_id": patient_id,
         "transition_id": transition_id,
-        "event": body.event,
+        "event": event,
         "current_state": to_state,
         "next_state": next_state,
         "blocking": blocking,
