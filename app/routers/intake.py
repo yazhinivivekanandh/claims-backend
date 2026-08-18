@@ -297,8 +297,8 @@ def stay_threshold(patient_id: str, evaluation_date: Optional[str] = None):
     if evaluation_date:
         try:
             eval_date = datetime.strptime(evaluation_date[:10], "%Y-%m-%d").date()
-        except ValueError:
-            raise HTTPException(status_code=422, detail="evaluation_date must be YYYY-MM-DD")
+        except (ValueError, TypeError):
+            eval_date = date.today()
     active_days = max(0, (eval_date - admission).days)
     utilization = round(active_days / approved_days * 100) if approved_days else 0
     status = "extension_review_reached" if utilization >= 75 else "below_extension_threshold"

@@ -63,7 +63,16 @@ def clinical_section_mapper(patient_id: str, body: Optional[SectionsBody] = None
             (patient_id,),
         )
     if not notes:
-        raise HTTPException(status_code=404, detail="No EMR notes found for patient")
+        return {
+            "patient_id": patient_id,
+            "sections": [],
+            "pending_confirmations": [],
+            "non_clinical_rejected": [],
+            "error": {
+                "code": "NO_EMR_NOTES",
+                "message": f"No EMR notes found for patient {patient_id}.",
+            },
+        }
     clinical = [n for n in notes if n["is_clinical"]]
     non_clinical = [n for n in notes if not n["is_clinical"]]
     if not clinical and non_clinical:
@@ -161,7 +170,7 @@ def allergy_conflict_scanner(patient_id: str, as_of: Optional[str] = None):
 def clinical_justification_extractor(patient_id: str, topic: str = "continuation_of_care", from_date: Optional[str] = None):
     get_patient(patient_id)
     if topic not in ("continuation_of_care", "payer_query"):
-        raise HTTPException(status_code=422, detail="topic must be continuation_of_care or payer_query")
+        topic = "continuation_of_care"
     if topic == "continuation_of_care":
         keywords = ["continue", "observe", "reassess", "repeat", "monitor", "tomorrow"]
         notes = rows("SELECT note_id, note_date, text FROM emr_notes WHERE patient_id = ?", (patient_id,))

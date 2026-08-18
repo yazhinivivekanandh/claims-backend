@@ -67,7 +67,14 @@ def fhir_payload_builder(patient_id: str):
     patient = get_patient(patient_id)
     blocks = blocking_conditions(patient_id)
     if blocks:
-        raise HTTPException(status_code=409, detail={"validation": "FAIL", "blocking_reasons": blocks})
+        return {
+            "bundle_id": None,
+            "patient_id": patient_id,
+            "validation": "FAIL",
+            "blocking_reasons": blocks,
+            "blocked": True,
+            "message": "FHIR bundle cannot be assembled due to blocking conditions.",
+        }
     reconciliation = ledger_reconciler(patient_id)
     bundle_id = f"FHIR-{patient_id}-{patient['discharge_date'].replace('-', '')}"
     existing = one("SELECT * FROM claims WHERE patient_id = ? AND bundle_id = ?", (patient_id, bundle_id))
@@ -107,7 +114,15 @@ def nhcx_gateway_transmitter(patient_id: str, body: Optional[SubmitBody] = None)
     patient = get_patient(patient_id)
     blocks = blocking_conditions(patient_id)
     if blocks:
-        raise HTTPException(status_code=409, detail={"blocking": True, "blocking_reasons": blocks})
+        return {
+            "claim_id": None,
+            "bundle_id": None,
+            "receipt": None,
+            "status": "BLOCKED",
+            "blocked": True,
+            "blocking_reasons": blocks,
+            "message": "Claim submission blocked due to unresolved conditions.",
+        }
     bundle_id = body.bundle_id if body and body.bundle_id else f"FHIR-{patient_id}-{patient['discharge_date'].replace('-', '')}"
     claim = one("SELECT * FROM claims WHERE patient_id = ? AND bundle_id = ?", (patient_id, bundle_id))
     if claim is None:

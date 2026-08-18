@@ -47,7 +47,14 @@ def nhcx_query_gateway(patient_id: str, query_id: str, body: Optional[RespondBod
         (patient_id, query_id),
     )
     if query is None:
-        raise HTTPException(status_code=404, detail=f"Unknown query {query_id} for patient {patient_id}")
+        return {
+            "query_id": query_id,
+            "patient_id": patient_id,
+            "disposition": "NOT_FOUND",
+            "receipt": None,
+            "transmitted_at": None,
+            "blocked_reason": f"Query {query_id} not found for patient {patient_id}.",
+        }
     classification = query["classification"]
     if classification == "URGENT_CLINICAL_ESCALATION":
         write(
