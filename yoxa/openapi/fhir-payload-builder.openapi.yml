@@ -1,0 +1,52 @@
+# Generated connector document for Yoxa API Configuration.
+openapi: 3.1.0
+info:
+  title: FHIR Payload Builder
+  version: 0.1.0
+servers:
+  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+paths:
+  /api/patients/{patient_id}/fhir-bundle:
+    post:
+      operationId: buildFhirBundle
+      summary: "Build the encrypted FHIR R4 claim bundle"
+      description: "Compiles the approved claim records into an HL7 FHIR R4 claim bundle metadata record. Returns 409 when a blocking safety gate is active. Encryption is a marked placeholder envelope."
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Patient identifier, e.g. PAT-10482.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  bundle_id:
+                    type: string
+                  patient_id:
+                    type: string
+                  resource_types:
+                    type: array
+                    items:
+                      type: string
+                  claimed_amount:
+                    type: number
+                  validation:
+                    type: string
+                    enum: [PASS]
+                  status:
+                    type: string
+                    enum: [BUILT, SUBMITTED]
+                  encryption:
+                    type: object
+                    properties:
+                      algorithm:
+                        type: string
+                      note:
+                        type: string
+                required: [bundle_id, patient_id, resource_types, claimed_amount, validation, status, encryption]

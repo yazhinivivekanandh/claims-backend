@@ -1,0 +1,45 @@
+# Generated connector document for Yoxa API Configuration.
+openapi: 3.1.0
+info:
+  title: EMR Log Query
+  version: 0.1.0
+servers:
+  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+paths:
+  /api/patients/{patient_id}/emr:
+    get:
+      operationId: getEmrLogs
+      summary: "Retrieve chronological EMR notes"
+      description: "Returns patient-specific EMR notes ordered chronologically with source identifiers."
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Patient identifier, e.g. PAT-10482.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patient_id:
+                    type: string
+                  notes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        note_id:
+                          type: string
+                        note_date:
+                          type: string
+                        section:
+                          type: string
+                        text:
+                          type: string
+                      required: [note_id, note_date, section, text]
+                required: [patient_id, notes]

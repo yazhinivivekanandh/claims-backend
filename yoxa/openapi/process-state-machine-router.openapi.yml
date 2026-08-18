@@ -1,0 +1,57 @@
+# Generated connector document for Yoxa API Configuration.
+openapi: 3.1.0
+info:
+  title: Process State Machine Router
+  version: 0.1.0
+servers:
+  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+paths:
+  /api/patients/{patient_id}/state/advance:
+    post:
+      operationId: advancePatientState
+      summary: "Advance the patient's workflow state"
+      description: "Advances the ordered workflow state for a patient. Events: intake_validated, extension_review, discharge_trigger, claim_readiness, fhir_assembly, query_received, query_response_ready, query_escalated. Returns 409 when the transition is blocked by a safety gate or invalid state order."
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Patient identifier, e.g. PAT-10482.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                    type: object
+                    required: [event]
+                    properties:
+                      event:
+                        type: string
+                      metadata:
+                        type: ["object", "null"]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patient_id:
+                    type: string
+                  transition_id:
+                    type: string
+                  event:
+                    type: string
+                  current_state:
+                    type: string
+                  next_state:
+                    type: string
+                  blocking:
+                    type: boolean
+                  blocking_reasons:
+                    type: array
+                    items:
+                      type: string
+                required: [patient_id, transition_id, event, current_state, next_state, blocking, blocking_reasons]

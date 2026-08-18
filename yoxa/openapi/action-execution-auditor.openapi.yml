@@ -1,0 +1,50 @@
+# Generated connector document for Yoxa API Configuration.
+openapi: 3.1.0
+info:
+  title: Action Execution Auditor
+  version: 0.1.0
+servers:
+  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+paths:
+  /api/audit-trails:
+    post:
+      operationId: createAuditTrail
+      summary: "Record an audited agent action"
+      description: "Records an agent action with timestamp and source record identifiers and returns the audit id."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                    type: object
+                    required: [patient_id, action]
+                    properties:
+                      patient_id:
+                        type: string
+                      action:
+                        type: string
+                      source_ids:
+                        type: ["array", "null"]
+                        items:
+                          type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  audit_id:
+                    type: string
+                  patient_id:
+                    type: string
+                  action:
+                    type: string
+                  source_ids:
+                    type: array
+                    items:
+                      type: string
+                  created_at:
+                    type: string
+                required: [audit_id, patient_id, action, source_ids, created_at]

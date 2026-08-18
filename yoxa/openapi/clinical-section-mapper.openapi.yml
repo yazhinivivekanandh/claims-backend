@@ -1,0 +1,75 @@
+# Generated connector document for Yoxa API Configuration.
+openapi: 3.1.0
+info:
+  title: Clinical Section Mapper
+  version: 0.1.0
+servers:
+  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+paths:
+  /api/patients/{patient_id}/clinical-sections:
+    post:
+      operationId: mapClinicalSections
+      summary: "Map explicit EMR text into structured summary sections"
+      description: "Maps explicit clinician text into discharge-summary sections with citations and rejects non-clinical sources. A discharge summary draft is persisted."
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Patient identifier, e.g. PAT-10482.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+                    type: object
+                    properties:
+                      note_ids:
+                        type: ["array", "null"]
+                        items:
+                          type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patient_id:
+                    type: string
+                  sections:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        section:
+                          type: string
+                        statements:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              statement:
+                                type: string
+                              citation:
+                                type: string
+                            required: [statement, citation]
+                      required: [section, statements]
+                  pending_confirmations:
+                    type: array
+                    items:
+                      type: string
+                  non_clinical_rejected:
+                    type: array
+                    items:
+                      type: string
+                  error:
+                    type: ["object", "null"]
+                    properties:
+                      code:
+                        type: string
+                      message:
+                        type: string
+                required: [patient_id, sections, pending_confirmations, non_clinical_rejected, error]

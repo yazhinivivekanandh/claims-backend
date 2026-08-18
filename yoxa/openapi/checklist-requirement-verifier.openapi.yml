@@ -1,0 +1,57 @@
+# Generated connector document for Yoxa API Configuration.
+openapi: 3.1.0
+info:
+  title: Checklist Requirement Verifier
+  version: 0.1.0
+servers:
+  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+paths:
+  /api/patients/{patient_id}/checklist-verification:
+    post:
+      operationId: verifyChecklistRequirements
+      summary: "Verify insurer requirements C1-C8"
+      description: "Checks the eight insurer requirements C1-C8 against available records. C8 is sourced from the audited billing ledger. Returns blocking reasons when a safety gate is active."
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Patient identifier, e.g. PAT-10482.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patient_id:
+                    type: string
+                  checklist_version:
+                    type: string
+                  requirements:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                        description:
+                          type: string
+                        status:
+                          type: string
+                          enum: [present, missing]
+                        source:
+                          type: string
+                  missing_count:
+                    type: integer
+                  missing_codes:
+                    type: array
+                    items:
+                      type: string
+                  blocking_reasons:
+                    type: array
+                    items:
+                      type: string
+                required: [patient_id, checklist_version, requirements, missing_count, missing_codes, blocking_reasons]

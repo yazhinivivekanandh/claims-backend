@@ -1,0 +1,48 @@
+# Generated connector document for Yoxa API Configuration.
+openapi: 3.1.0
+info:
+  title: Floor Clerk Exception Notifier
+  version: 0.1.0
+servers:
+  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+paths:
+  /api/patients/{patient_id}/floor-clerk-exceptions:
+    get:
+      operationId: getFloorClerkExceptions
+      summary: "List unmatched order exceptions"
+      description: "Returns the unmatched order-to-charge exceptions queued for the floor clerk."
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Patient identifier, e.g. PAT-10482.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patient_id:
+                    type: string
+                  queue:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        order_id:
+                          type: string
+                        reason:
+                          type: string
+                        status:
+                          type: string
+                        created_at:
+                          type: string
+                  last_reconciliation:
+                    type: ["string", "null"]
+                  next_sweep_due_hours:
+                    type: integer
+                required: [patient_id, queue, last_reconciliation, next_sweep_due_hours]

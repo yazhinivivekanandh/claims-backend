@@ -1,0 +1,57 @@
+# Generated connector document for Yoxa API Configuration.
+openapi: 3.1.0
+info:
+  title: NHCX Query Gateway
+  version: 0.1.0
+servers:
+  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+paths:
+  /api/patients/{patient_id}/nhcx-queries/{query_id}/respond:
+    post:
+      operationId: respondToPayerQuery
+      summary: "Transmit a governed payer query response"
+      description: "Transmits a factual or approved clinical response through NHCX, or blocks/escalates when the query is an urgent clinical escalation."
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Patient identifier, e.g. PAT-10482.
+        - name: query_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: NHCX query identifier, e.g. NHCX-Q-99107.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+                    type: object
+                    properties:
+                      response_payload:
+                        type: ["object", "null"]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  query_id:
+                    type: string
+                  patient_id:
+                    type: string
+                  disposition:
+                    type: string
+                    enum: [RESOLVED, ESCALATED, BLOCKED]
+                  receipt:
+                    type: ["string", "null"]
+                  transmitted_at:
+                    type: ["string", "null"]
+                  blocked_reason:
+                    type: ["string", "null"]
+                required: [query_id, patient_id, disposition, receipt, transmitted_at, blocked_reason]

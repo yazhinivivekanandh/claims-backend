@@ -1,0 +1,50 @@
+# Generated connector document for Yoxa API Configuration.
+openapi: 3.1.0
+info:
+  title: Duplicate Charge Auditor
+  version: 0.1.0
+servers:
+  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+paths:
+  /api/patients/{patient_id}/ledger/duplicates:
+    get:
+      operationId: auditDuplicateCharges
+      summary: "Detect same-day duplicate charges"
+      description: "Finds duplicate same-day billing entries for the same patient, item and charge context."
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Patient identifier, e.g. PAT-10482.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patient_id:
+                    type: string
+                  duplicate_count:
+                    type: integer
+                  duplicate_value:
+                    type: number
+                  duplicates:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        entry_date:
+                          type: string
+                        description:
+                          type: string
+                        amount:
+                          type: number
+                        entry_ids:
+                          type: array
+                          items:
+                            type: string
+                required: [patient_id, duplicate_count, duplicate_value, duplicates]

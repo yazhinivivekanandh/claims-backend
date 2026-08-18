@@ -1,0 +1,46 @@
+# Generated connector document for Yoxa API Configuration.
+openapi: 3.1.0
+info:
+  title: Dataset Ingestion Registry
+  version: 0.1.0
+servers:
+  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+paths:
+  /api/patients/{patient_id}/registry:
+    post:
+      operationId: registerPatientDatasets
+      summary: "Register the five CSV datasets for a patient"
+      description: "Indexes the admissions, policies, EMR, billing ledger and insurer checklist datasets for a patient and reports missing join keys."
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Patient identifier, e.g. PAT-10482.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patient_id:
+                    type: string
+                  status:
+                    type: string
+                    enum: [registered]
+                  datasets:
+                    type: array
+                    items:
+                      type: string
+                  indexed_records:
+                    type: object
+                    additionalProperties:
+                      type: integer
+                  missing_join_keys:
+                    type: array
+                    items:
+                      type: string
+                required: [patient_id, status, datasets, indexed_records, missing_join_keys]

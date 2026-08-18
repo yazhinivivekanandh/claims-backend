@@ -1,0 +1,52 @@
+# Generated connector document for Yoxa API Configuration.
+openapi: 3.1.0
+info:
+  title: Payer Query Classifier
+  version: 0.1.0
+servers:
+  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+paths:
+  /api/patients/{patient_id}/nhcx-queries:
+    get:
+      operationId: listPayerQueries
+      summary: "List inbound payer queries with classification"
+      description: "Returns inbound NHCX payer queries for the patient with their classification (factual, clinical, or urgent clinical escalation) and status."
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Patient identifier, e.g. PAT-10482.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patient_id:
+                    type: string
+                  queries:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        query_id:
+                          type: string
+                        claim_id:
+                          type: ["string", "null"]
+                        text:
+                          type: string
+                        classification:
+                          type: string
+                          enum: [FACTUAL, CLINICAL, URGENT_CLINICAL_ESCALATION]
+                        status:
+                          type: string
+                        received_at:
+                          type: string
+                        transmitted_at:
+                          type: ["string", "null"]
+                      required: [query_id, text, classification, status, received_at]
+                required: [patient_id, queries]

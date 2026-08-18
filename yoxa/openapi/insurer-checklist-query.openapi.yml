@@ -1,0 +1,43 @@
+# Generated connector document for Yoxa API Configuration.
+openapi: 3.1.0
+info:
+  title: Insurer Checklist Query
+  version: 0.1.0
+servers:
+  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+paths:
+  /api/patients/{patient_id}/insurer-checklist:
+    get:
+      operationId: getInsurerChecklist
+      summary: "Retrieve insurer checklist requirements"
+      description: "Returns the insurer checklist version and the C1-C8 requirement definitions for the patient's insurer."
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Patient identifier, e.g. PAT-10482.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  insurer:
+                    type: string
+                  checklist_version:
+                    type: ["string", "null"]
+                  requirements:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        code:
+                          type: string
+                        description:
+                          type: string
+                      required: [code, description]
+                required: [insurer, checklist_version, requirements]

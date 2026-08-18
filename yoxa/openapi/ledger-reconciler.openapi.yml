@@ -1,0 +1,49 @@
+# Generated connector document for Yoxa API Configuration.
+openapi: 3.1.0
+info:
+  title: Ledger Reconciler
+  version: 0.1.0
+servers:
+  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+paths:
+  /api/patients/{patient_id}/ledger/reconciliation:
+    get:
+      operationId: reconcileLedger
+      summary: "Reconcile the patient ledger"
+      description: "Calculates gross, credits and net totals from exact ledger entries and reports unmatched charges."
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Patient identifier, e.g. PAT-10482.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patient_id:
+                    type: string
+                  entries_count:
+                    type: integer
+                  gross_total:
+                    type: number
+                  credits_total:
+                    type: number
+                  net_total:
+                    type: number
+                  unmatched_amount:
+                    type: number
+                  unmatched_entry_ids:
+                    type: array
+                    items:
+                      type: string
+                  entry_ids:
+                    type: array
+                    items:
+                      type: string
+                required: [patient_id, entries_count, gross_total, credits_total, net_total, unmatched_amount, unmatched_entry_ids, entry_ids]

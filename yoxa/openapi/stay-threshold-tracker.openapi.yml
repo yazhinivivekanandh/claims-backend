@@ -1,0 +1,50 @@
+# Generated connector document for Yoxa API Configuration.
+openapi: 3.1.0
+info:
+  title: Stay Threshold Tracker
+  version: 0.1.0
+servers:
+  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+paths:
+  /api/patients/{patient_id}/stay-threshold:
+    get:
+      operationId: getStayThreshold
+      summary: "Calculate active stay against approved stay days"
+      description: "Computes active inpatient days and utilization percentage against approved_stay_days as of an optional evaluation date."
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Patient identifier, e.g. PAT-10482.
+        - name: evaluation_date
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Evaluation date YYYY-MM-DD. Defaults to today.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patient_id:
+                    type: string
+                  admission_date:
+                    type: string
+                  approved_stay_days:
+                    type: integer
+                  evaluation_date:
+                    type: string
+                  active_stay_days:
+                    type: integer
+                  utilization_percent:
+                    type: integer
+                  threshold_status:
+                    type: string
+                    enum: [below_extension_threshold, extension_review_reached]
+                required: [patient_id, admission_date, approved_stay_days, evaluation_date, active_stay_days, utilization_percent, threshold_status]

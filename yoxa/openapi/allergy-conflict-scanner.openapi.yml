@@ -1,0 +1,70 @@
+# Generated connector document for Yoxa API Configuration.
+openapi: 3.1.0
+info:
+  title: Allergy Conflict Scanner
+  version: 0.1.0
+servers:
+  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+paths:
+  /api/patients/{patient_id}/allergy-scan:
+    post:
+      operationId: scanAllergyConflicts
+      summary: "Scan medication-allergy conflicts"
+      description: "Cross-references recorded allergies against active and discharge medications using drug-class matching, returning CLEAR or BLOCKED."
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Patient identifier, e.g. PAT-10482.
+        - name: as_of
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Only consider allergies recorded on or before this date YYYY-MM-DD.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patient_id:
+                    type: string
+                  recorded_allergies:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        allergen:
+                          type: string
+                        severity:
+                          type: string
+                        source_note_id:
+                          type: string
+                  active_medications:
+                    type: array
+                    items:
+                      type: string
+                  conflicts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        allergen:
+                          type: string
+                        severity:
+                          type: string
+                        conflicting_medication:
+                          type: array
+                          items:
+                            type: string
+                        source_note_id:
+                          type: string
+                  result:
+                    type: string
+                    enum: [CLEAR, BLOCKED]
+                required: [patient_id, recorded_allergies, active_medications, conflicts, result]

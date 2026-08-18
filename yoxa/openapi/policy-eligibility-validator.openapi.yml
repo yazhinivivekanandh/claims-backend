@@ -1,0 +1,55 @@
+# Generated connector document for Yoxa API Configuration.
+openapi: 3.1.0
+info:
+  title: Policy Eligibility Validator
+  version: 0.1.0
+servers:
+  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+paths:
+  /api/policies/validate:
+    post:
+      operationId: validatePolicyEligibility
+      summary: "Validate a policy number for eligibility"
+      description: "Checks a policy number against the standard format and the supplied patient, returning PASS or FAIL with coverage metadata."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                    type: object
+                    required: [policy_number]
+                    properties:
+                      policy_number:
+                        type: string
+                      patient_id:
+                        type: ["string", "null"]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  policy_number:
+                    type: string
+                  patient_id:
+                    type: ["string", "null"]
+                  valid:
+                    type: boolean
+                  result:
+                    type: string
+                    enum: [PASS, FAIL]
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                  coverage_active_from:
+                    type: ["string", "null"]
+                  coverage_active_to:
+                    type: ["string", "null"]
+                  approved_limit:
+                    type: ["number", "null"]
+                  approved_stay_days:
+                    type: ["integer", "null"]
+                required: [policy_number, valid, result, errors]

@@ -1,0 +1,60 @@
+# Generated connector document for Yoxa API Configuration.
+openapi: 3.1.0
+info:
+  title: Clinical Justification Extractor
+  version: 0.1.0
+servers:
+  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+paths:
+  /api/patients/{patient_id}/clinical-justification:
+    get:
+      operationId: extractClinicalJustification
+      summary: "Extract verbatim physician passages"
+      description: "Extracts explicit, date-matched continuation-of-care or payer-query evidence verbatim with exact log identifiers."
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Patient identifier, e.g. PAT-10482.
+        - name: topic
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [continuation_of_care, payer_query]
+          description: Extraction topic. Defaults to continuation_of_care.
+        - name: from_date
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Only evidence on or after this date YYYY-MM-DD.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patient_id:
+                    type: string
+                  topic:
+                    type: string
+                  evidence:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        log_id:
+                          type: string
+                        note_date:
+                          type: string
+                        excerpt:
+                          type: string
+                        verbatim:
+                          type: boolean
+                      required: [log_id, note_date, excerpt, verbatim]
+                required: [patient_id, topic, evidence]

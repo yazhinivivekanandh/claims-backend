@@ -1,0 +1,51 @@
+# Generated connector document for Yoxa API Configuration.
+openapi: 3.1.0
+info:
+  title: NHCX Gateway Transmitter
+  version: 0.1.0
+servers:
+  - url: https://vernon-teeth-journals-bike.trycloudflare.com
+paths:
+  /api/patients/{patient_id}/claims/submit:
+    post:
+      operationId: submitClaim
+      summary: "Submit the claim through NHCX"
+      description: "Validates and submits the approved FHIR claim bundle through NHCX and returns the transmission receipt and payer response deadline. Returns 409 when a blocking safety gate is active."
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Patient identifier, e.g. PAT-10482.
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+                    type: object
+                    properties:
+                      bundle_id:
+                        type: ["string", "null"]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  claim_id:
+                    type: string
+                  bundle_id:
+                    type: string
+                  receipt:
+                    type: string
+                  status:
+                    type: string
+                    enum: [SUBMITTED]
+                  submitted_at:
+                    type: string
+                  payer_response_deadline:
+                    type: string
+                required: [claim_id, bundle_id, receipt, status, submitted_at, payer_response_deadline]
