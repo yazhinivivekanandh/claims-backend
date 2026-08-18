@@ -167,25 +167,49 @@ def reset_state(patient_id: str):
 @router.post("/patients/{patient_id}/state/advance")
 def advance_state(patient_id: str, body: StateAdvanceBody):
     get_patient(patient_id)
-    if body.event not in TRANSITIONS:
-        raise HTTPException(status_code=422, detail=f"Unknown state event '{body.event}'")
-    expected_from, to_state, next_state = TRANSITIONS[body.event]
     current = _state_for(patient_id)
     current_state = current["current_state"] if current else "INTAKE_RECEIVED"
-    if expected_from and current_state != expected_from:
-        return {
-            "patient_id": patient_id,
-            "transition_id": None,
-            "event": body.event,
-            "current_state": current_state,
-            "next_state": None,
-            "blocking": False,
-            "blocking_reasons": [],
-            "note": f"Already at '{current_state}', cannot transition with event '{body.event}'",
-        }
+    event_upper = body.event.upper().replace(" ", "_")
+
+    STATE_FLOW = [
+        ("INTAKE_RECEIVED", "INTAKE_VALIDATED", "DAILY_STAY_OPERATIONS"),
+        ("INTAKE_VALIDATED", "DAILY_STAY_OPERATIONS", "DAILY_STAY_OPERATIONS"),
+        ("DAILY_STAY_OPERATIONS", "MIDSTAY_EXTENSION_REVIEW", "DISCHARGE_MONITORING"),
+        ("MIDSTAY_EXTENSION_REVIEW", "DISCHARGE_MONITORING", "DISCHARGE_MONITORING"),
+        ("DISCHARGE_REVIEW", "CLAIM_READINESS_CHECK", "FHIR_ASSEMBLY"),
+        ("CLAIM_READINESS_CHECK", "FHIR_ASSEMBLY", "CLAIM_SUBMITTED"),
+        ("QUERY_RECEIVED", "FACTUAL_RESPONSE_READY", "QUERY_HANDLING"),
+        ("FACTUAL_RESPONSE_READY", "FACTUAL_RESPONSE_READY", "QUERY_HANDLING"),
+    ]
+
+    if body.event in TRANSITIONS:
+        expected_from, to_state, next_state = TRANSITIONS[body.event]
+        if expected_from and current_state != expected_from:
+            return {
+                "patient_id": patient_id,
+                "transition_id": None,
+                "event": body.event,
+                "current_state": current_state,
+                "next_state": None,
+                "blocking": False,
+                "blocking_reasons": [],
+                "note": f"Already at '{current_state}', cannot transition with event '{body.event}'",
+            }
+    else:
+        matched = False
+        for from_s, to_s, nxt_s in STATE_FLOW:
+            if current_state == from_s:
+                to_state = to_s
+                next_state = nxt_s
+                matched = True
+                break
+        if not matched:
+            to_state = current_state
+            next_state = current_state
+
     reasons = blocking_conditions(patient_id)
     blocking = len(reasons) > 0
-    if blocking and body.event in ("discharge_trigger", "claim_readiness", "fhir_assembly"):
+    if blocking and body.event.upper() in ("DISCHARGE_TRIGGER", "CLAIM_READINESS", "FHIR_ASSEMBLY"):
         return {
             "patient_id": patient_id,
             "transition_id": None,
