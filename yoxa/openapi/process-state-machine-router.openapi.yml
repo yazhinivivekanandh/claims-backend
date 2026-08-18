@@ -10,7 +10,7 @@ paths:
     post:
       operationId: advancePatientState
       summary: "Advance the patient's workflow state"
-      description: "Advances the ordered workflow state for a patient. Events: intake_validated, extension_review, discharge_trigger, claim_readiness, fhir_assembly, query_received, query_response_ready, query_escalated. Returns 409 when the transition is blocked by a safety gate or invalid state order."
+      description: "Advances the ordered workflow state for a patient. Valid events: INTAKE_RECEIVED, PATIENT_STATE_CREATE, intake_validated, extension_review, discharge_trigger, claim_readiness, fhir_assembly, query_received, query_response_ready, query_escalated. Use INTAKE_RECEIVED or PATIENT_STATE_CREATE for intake steps. Returns 200 with a note when the transition is already complete."
       parameters:
         - name: patient_id
           in: path
@@ -41,17 +41,19 @@ paths:
                   patient_id:
                     type: string
                   transition_id:
-                    type: string
+                    type: ["string", "null"]
                   event:
                     type: string
                   current_state:
                     type: string
                   next_state:
-                    type: string
+                    type: ["string", "null"]
                   blocking:
                     type: boolean
                   blocking_reasons:
                     type: array
                     items:
                       type: string
-                required: [patient_id, transition_id, event, current_state, next_state, blocking, blocking_reasons]
+                  note:
+                    type: string
+                required: [patient_id, event, current_state, blocking, blocking_reasons]
