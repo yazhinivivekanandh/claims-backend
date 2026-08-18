@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from .config import API_TOKEN, APP_HOST, APP_PORT
 from .db import init_db
 from .seed import seed_if_empty
-from .routers import intake, clinical, billing, claims, queries
+from .routers import intake, clinical, billing, claims, queries, trigger
 
 app = FastAPI(
     title="Inpatient Discharge and Cashless Claims API",
@@ -36,6 +36,7 @@ app.include_router(clinical.router, prefix="/api")
 app.include_router(billing.router, prefix="/api")
 app.include_router(claims.router, prefix="/api")
 app.include_router(queries.router, prefix="/api")
+app.include_router(trigger.router, prefix="/api")
 
 
 if __name__ == "__main__":
