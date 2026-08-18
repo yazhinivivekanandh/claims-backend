@@ -1,0 +1,58 @@
+openapi: 3.1.0
+info:
+  title: Patient Lookup
+  version: 0.1.0
+servers:
+  - url: https://claims-backend-26qu.onrender.com
+paths:
+  /api/patients/{patient_id}:
+    get:
+      operationId: getPatientDetails
+      summary: "Retrieve patient details and policy information"
+      description: "Returns full patient record including policy number, insurer, admission dates, and policy details."
+      parameters:
+        - name: patient_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Patient identifier, e.g. PAT-10482.
+      responses:
+        '200':
+          description: Patient details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  patient_id:
+                    type: string
+                  name:
+                    type: string
+                  admission_id:
+                    type: string
+                  admission_date:
+                    type: string
+                  discharge_date:
+                    type: ["string", "null"]
+                  room_category:
+                    type: string
+                  insurer:
+                    type: string
+                  policy_number:
+                    type: string
+                  status:
+                    type: string
+                  policy:
+                    type: ["object", "null"]
+                    properties:
+                      policy_number:
+                        type: string
+                      approved_limit:
+                        type: integer
+                      approved_stay_days:
+                        type: integer
+                      active_from:
+                        type: string
+                      active_to:
+                        type: string

@@ -9,6 +9,31 @@ from ..dependencies import require_token
 
 router = APIRouter(dependencies=[Depends(require_token)])
 
+
+@router.get("/patients/{patient_id}")
+def get_patient_details(patient_id: str):
+    patient = get_patient(patient_id)
+    policy = one("SELECT * FROM policies WHERE patient_id = ?", (patient_id,))
+    return {
+        "patient_id": patient["patient_id"],
+        "name": patient["name"],
+        "admission_id": patient["admission_id"],
+        "admission_date": patient["admission_date"],
+        "discharge_date": patient["discharge_date"],
+        "room_category": patient["room_category"],
+        "insurer": patient["insurer"],
+        "policy_number": patient["policy_number"],
+        "status": patient["status"],
+        "policy": {
+            "policy_number": policy["policy_number"],
+            "approved_limit": policy["approved_limit"],
+            "approved_stay_days": policy["approved_stay_days"],
+            "active_from": policy["active_from"],
+            "active_to": policy["active_to"],
+        } if policy else None,
+    }
+
+
 DATASETS = ["admissions", "policies", "emr_logs", "billing_ledger", "insurer_checklist"]
 
 TRANSITIONS = {
