@@ -42,7 +42,7 @@ paths:
                   transition_id:
                     type: ["string", "null"]
                   event:
-                    type: string
+                    type: ["string", "null"]
                   current_state:
                     type: string
                   next_state:
@@ -54,5 +54,5 @@ paths:
                     items:
                       type: string
                   note:
-                    type: string
+                    type: ["string", "null"]
                 required: [patient_id, event, current_state, blocking, blocking_reasons]
