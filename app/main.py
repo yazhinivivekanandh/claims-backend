@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import API_TOKEN, APP_HOST, APP_PORT
 from .db import init_db
-from .seed import seed_if_empty
+from .seed import ensure_nhcx_query_pat10482, seed_if_empty
 from .routers import intake, clinical, billing, claims, queries, trigger
 
 app = FastAPI(
@@ -24,6 +24,7 @@ app.add_middleware(
 def startup() -> None:
     init_db()
     seed_if_empty()
+    ensure_nhcx_query_pat10482()
 
 
 @app.get("/health", tags=["system"])

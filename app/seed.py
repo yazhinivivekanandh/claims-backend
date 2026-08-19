@@ -256,6 +256,17 @@ def _seed_pt_fixtures():
     )
 
 
+def ensure_nhcx_query_pat10482() -> None:
+    write(
+        "INSERT OR REPLACE INTO nhcx_queries (query_id, patient_id, claim_id, text, classification, status, source_ids, response, receipt, received_at, transmitted_at) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        ("NHCX-Q-88421", "PAT-10482", "CLM-10482-20250212",
+         "Transmitted INR 52930 does not match authoritative INR 47450. Explain the discrepancy.",
+         "BILLING_DISCREPANCY", "RECEIVED", json_dumps(["BL-10482-023"]),
+         None, None, "2025-02-13T12:00:00Z", None),
+    )
+
+
 def seed_if_empty() -> None:
     if one("SELECT 1 FROM patients LIMIT 1") is not None:
         return
