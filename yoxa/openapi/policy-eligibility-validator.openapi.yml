@@ -17,6 +17,7 @@ paths:
           application/json:
             schema:
                     type: object
+                    additionalProperties: true
                     required: [policy_number]
                     properties:
                       policy_number:
@@ -30,6 +31,7 @@ paths:
             application/json:
               schema:
                 type: object
+                additionalProperties: true
                 properties:
                   policy_number:
                     type: string

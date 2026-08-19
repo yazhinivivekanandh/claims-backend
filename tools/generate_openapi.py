@@ -207,6 +207,7 @@ OPS = [
         "params": [],
         "request_body": (
             "              type: object\n"
+            "              additionalProperties: true\n"
             "              required: [policy_number]\n"
             "              properties:\n"
             "                policy_number:\n                  type: string\n"
@@ -215,6 +216,7 @@ OPS = [
         "request_body_required": True,
         "response_200": (
             "            type: object\n"
+            "            additionalProperties: true\n"
             "            properties:\n"
             "              policy_number:\n                type: string\n"
             "              patient_id:\n                type: [\"string\", \"null\"]\n"
