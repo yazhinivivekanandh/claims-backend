@@ -313,12 +313,17 @@ def stay_threshold(patient_id: str, evaluation_date: Optional[str] = None):
     policy = one("SELECT * FROM policies WHERE patient_id = ?", (patient_id,))
     approved_days = policy["approved_stay_days"] if policy else 0
     admission = datetime.strptime(patient["admission_date"], "%Y-%m-%d").date()
-    eval_date = date.today()
+    default_eval = (
+        datetime.strptime(patient["discharge_date"], "%Y-%m-%d").date()
+        if patient.get("discharge_date")
+        else admission
+    )
+    eval_date = default_eval
     if evaluation_date:
         try:
             eval_date = datetime.strptime(evaluation_date[:10], "%Y-%m-%d").date()
         except (ValueError, TypeError):
-            eval_date = date.today()
+            eval_date = default_eval
     active_days = max(0, (eval_date - admission).days)
     utilization = round(active_days / approved_days * 100) if approved_days else 0
     status = "extension_review_reached" if utilization >= 75 else "below_extension_threshold"
