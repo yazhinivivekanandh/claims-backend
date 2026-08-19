@@ -294,18 +294,6 @@ def validate_policy(body: PolicyValidateBody):
             "result": "FAIL",
             "errors": ["Policy is not linked to the supplied patient"],
         }
-    patient = one("SELECT * FROM patients WHERE patient_id = ?", (policy["patient_id"],))
-    admission_record = None
-    if patient:
-        admission_record = {
-            "patient_id": patient["patient_id"],
-            "name": patient["name"],
-            "admission_id": patient["admission_id"],
-            "admission_date": patient["admission_date"],
-            "discharge_date": patient["discharge_date"],
-            "room_category": patient["room_category"],
-            "status": patient["status"],
-        }
     return {
         "policy_number": policy["policy_number"],
         "patient_id": policy["patient_id"],
@@ -316,7 +304,6 @@ def validate_policy(body: PolicyValidateBody):
         "coverage_active_to": policy["active_to"],
         "approved_limit": policy["approved_limit"],
         "approved_stay_days": policy["approved_stay_days"],
-        "admission_record": admission_record,
     }
 
 
