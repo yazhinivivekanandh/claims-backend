@@ -52,4 +52,21 @@ paths:
                     type: ["number", "null"]
                   approved_stay_days:
                     type: ["integer", "null"]
+                  admission_record:
+                    type: ["object", "null"]
+                    properties:
+                      patient_id:
+                        type: ["string", "null"]
+                      name:
+                        type: ["string", "null"]
+                      admission_id:
+                        type: ["string", "null"]
+                      admission_date:
+                        type: ["string", "null"]
+                      discharge_date:
+                        type: ["string", "null"]
+                      room_category:
+                        type: ["string", "null"]
+                      status:
+                        type: ["string", "null"]
                 required: [policy_number, valid, result, errors]
