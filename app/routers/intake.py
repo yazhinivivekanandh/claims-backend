@@ -265,6 +265,16 @@ def create_audit(body: AuditBody):
     }
 
 
+@router.get("/audit-trails/{patient_id}")
+def list_audits(patient_id: str):
+    get_patient(patient_id)
+    audits = rows(
+        "SELECT audit_id, patient_id, action, source_ids, created_at FROM audit_trails WHERE patient_id = ? ORDER BY created_at",
+        (patient_id,),
+    )
+    return {"patient_id": patient_id, "audits": [dict(a) for a in audits]}
+
+
 @router.post("/policies/validate")
 def validate_policy(body: PolicyValidateBody):
     policy = one("SELECT * FROM policies WHERE policy_number = ?", (body.policy_number,))
