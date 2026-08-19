@@ -315,7 +315,7 @@ def stay_threshold(patient_id: str, evaluation_date: Optional[str] = None):
     admission = datetime.strptime(patient["admission_date"], "%Y-%m-%d").date()
     default_eval = (
         datetime.strptime(patient["discharge_date"], "%Y-%m-%d").date()
-        if patient.get("discharge_date")
+        if patient["discharge_date"]
         else admission
     )
     eval_date = default_eval
