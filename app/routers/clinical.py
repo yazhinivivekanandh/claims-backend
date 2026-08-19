@@ -118,6 +118,62 @@ def clinical_section_mapper(patient_id: str, body: Optional[SectionsBody] = None
     }
 
 
+class SummaryDraftBody(BaseModel):
+    draft_sections: Optional[dict] = None
+    sections: Optional[list] = None
+    status: Optional[str] = "DRAFT"
+
+
+@router.post("/patients/{patient_id}/summaries")
+def publish_summary_draft(patient_id: str, body: Optional[SummaryDraftBody] = None):
+    get_patient(patient_id)
+    existing = one("SELECT draft_sections FROM summaries WHERE patient_id = ?", (patient_id,))
+    sections = None
+    if body and body.sections is not None:
+        sections = body.sections
+    elif body and body.draft_sections is not None:
+        sections = body.draft_sections
+    elif existing:
+        try:
+            import json as _json
+            sections = _json.loads(existing["draft_sections"])
+        except Exception:
+            sections = existing["draft_sections"]
+    if sections is None:
+        sections = []
+    status = body.status if body and body.status else "DRAFT"
+    write(
+        "INSERT OR REPLACE INTO summaries (patient_id, draft_sections, status, updated_at) VALUES (?, ?, ?, ?)",
+        (patient_id, json_dumps(sections), status, utc_now()),
+    )
+    return {
+        "patient_id": patient_id,
+        "draft_sections": sections,
+        "status": status,
+        "message": "Rolling discharge summary draft published for human review. Not finalized, not signed, not submitted.",
+        "updated_at": utc_now(),
+    }
+
+
+@router.get("/patients/{patient_id}/summaries")
+def get_summary_draft(patient_id: str):
+    get_patient(patient_id)
+    row = one("SELECT draft_sections, status, updated_at FROM summaries WHERE patient_id = ?", (patient_id,))
+    if row is None:
+        return {"patient_id": patient_id, "draft_sections": [], "status": None, "updated_at": None}
+    try:
+        import json as _json
+        sections = _json.loads(row["draft_sections"])
+    except Exception:
+        sections = row["draft_sections"]
+    return {
+        "patient_id": patient_id,
+        "draft_sections": sections,
+        "status": row["status"],
+        "updated_at": row["updated_at"],
+    }
+
+
 @router.post("/patients/{patient_id}/allergy-scan")
 def allergy_conflict_scanner(patient_id: str, as_of: Optional[str] = None):
     patient = get_patient(patient_id)
