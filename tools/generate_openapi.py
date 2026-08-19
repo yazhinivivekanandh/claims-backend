@@ -143,27 +143,27 @@ OPS = [
         "method": "post",
         "path": "/patients/{patient_id}/state/advance",
         "summary": "Advance the patient's workflow state",
-        "desc": "Advances the ordered workflow state for a patient. Events: intake_validated, extension_review, discharge_trigger, claim_readiness, fhir_assembly, query_received, query_response_ready, query_escalated. Returns 409 when the transition is blocked by a safety gate or invalid state order.",
+        "desc": "Advances the patient's workflow state. The server computes the next state automatically from the patient's current state. The event field is optional and ignored; do not guess or choose an event name. Calling this twice is safe and idempotent. Returns the current_state and next_state values, which should be echoed in downstream context.",
         "params": PATIENT_PATH,
         "request_body": (
             "              type: object\n"
-            "              required: [event]\n"
             "              properties:\n"
             "                event:\n                  type: string\n"
             "                metadata:\n                  type: [\"object\", \"null\"]\n"
         ),
-        "request_body_required": True,
+        "request_body_required": False,
         "response_200": (
             "            type: object\n"
             "            properties:\n"
             "              patient_id:\n                type: string\n"
-            "              transition_id:\n                type: string\n"
-            "              event:\n                type: string\n"
+            "              transition_id:\n                type: [\"string\", \"null\"]\n"
+            "              event:\n                type: [\"string\", \"null\"]\n"
             "              current_state:\n                type: string\n"
-            "              next_state:\n                type: string\n"
+            "              next_state:\n                type: [\"string\", \"null\"]\n"
             "              blocking:\n                type: boolean\n"
             "              blocking_reasons:\n                type: array\n                items:\n                  type: string\n"
-            "            required: [patient_id, transition_id, event, current_state, next_state, blocking, blocking_reasons]\n"
+            "              note:\n                type: [\"string\", \"null\"]\n"
+            "            required: [patient_id, event, current_state, blocking, blocking_reasons]\n"
         ),
     },
     {
