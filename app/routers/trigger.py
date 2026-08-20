@@ -6,7 +6,7 @@ from pydantic import BaseModel
 router = APIRouter()
 
 YOXA_TRIGGER_URL = "https://yoxa.ai/api/v1/public/workflow-deployments/de17ed08-72c9-4a24-a6ef-8dae3c21e41e/trigger"
-YOXA_SECRET = "yoxa_dep_zJQVSpQipdzRp7NNvkAIWyyq19qUHWSMVOLfkoCwduY"
+YOXA_SECRET = "yoxa_dep_K8v39mWOC3vtZEVZ5C94Yik0DnjMcXQF5A3Z9LFz9mw"
 
 
 class TriggerBody(BaseModel):
